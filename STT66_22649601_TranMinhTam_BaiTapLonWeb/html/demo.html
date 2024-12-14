@@ -70,7 +70,41 @@
     function closeCart() {
         document.getElementById('cart').style.display = 'none';
     }
-    let favoriteItems = []; // Danh sách sản phẩm yêu thích
+
+    // Mở modal Checkout
+    function openCheckout() {
+        document.getElementById('checkout-modal').style.display = 'block';
+        document.getElementById('cart').style.display = 'none'; // Đóng cart khi vào checkout
+
+        // Cập nhật tổng số tiền thanh toán
+        const checkoutTotal = document.getElementById('checkout-total');
+        checkoutTotal.innerText = total; // Tổng tiền của giỏ hàng hiện tại
+    }
+
+    // Xác nhận thanh toán
+    function confirmCheckout() {
+        const name = document.getElementById('buyer-name').value.trim();
+        const email = document.getElementById('buyer-email').value.trim();
+        const address = document.getElementById('buyer-address').value.trim();
+        const paymentMethod = document.getElementById('payment-method').value;
+
+        if (!name || !email || !address || !paymentMethod) {
+            alert('Please fill in all the required fields.');
+            return;
+        }
+
+        // Hiển thị thông báo thanh toán thành công
+        alert(`Thank you for your purchase, ${name}! 
+Your payment via ${paymentMethod} is being processed.`);
+
+        // Reset giỏ hàng
+        cart = [];
+        updateCart();
+
+        // Đóng modal checkout
+        closeCheckout();
+    }
+
 
     // Hàm bật/tắt popup
     function toggleFavoritePopup() {
@@ -121,68 +155,180 @@
 
 
 <script>
+    // Mở form đăng nhập
     function openLoginForm() {
         document.getElementById('login-form').style.display = 'block';
     }
 
+    // Đóng form đăng nhập
     function closeLoginForm() {
         document.getElementById('login-form').style.display = 'none';
     }
 
-    function openCart() {
-        document.getElementById('cart').style.display = 'block';
-    }
-
-    function closeCart() {
-        document.getElementById('cart').style.display = 'none';
-    }
-</script>
-<script>
-    function openLoginForm() {
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('register-form').style.display = 'none';
-    }
-
-    function closeLoginForm() {
-        document.getElementById('login-form').style.display = 'none';
-    }
-
+    // Mở form đăng ký
     function openRegisterForm() {
         document.getElementById('register-form').style.display = 'block';
-        document.getElementById('login-form').style.display = 'none';
     }
 
+    // Đóng form đăng ký
     function closeRegisterForm() {
         document.getElementById('register-form').style.display = 'none';
     }
+
+    // Kiểm tra đăng ký
+    document.getElementById('register-form-action').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Lấy giá trị từ các input
+        const username = document.getElementById('register-username').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        let isValid = true; // Cờ xác nhận hợp lệ
+
+        // Reset các lỗi cũ
+        resetErrors();
+
+        // Kiểm tra Username
+        if (!validateUsername(username)) {
+            document.getElementById('username-error').style.display = 'block';
+            document.getElementById('register-username').classList.add('error');
+            isValid = false;
+        }
+
+        // Kiểm tra Email
+        if (!validateEmail(email)) {
+            document.getElementById('email-error').style.display = 'block';
+            document.getElementById('register-email').classList.add('error');
+            isValid = false;
+        }
+
+        // Kiểm tra Password
+        if (!validatePassword(password)) {
+            document.getElementById('password-error').style.display = 'block';
+            document.getElementById('register-password').classList.add('error');
+            isValid = false;
+        }
+
+        // Kiểm tra Xác nhận mật khẩu
+        if (password !== confirmPassword) {
+            document.getElementById('confirm-password-error').style.display = 'block';
+            document.getElementById('confirm-password').classList.add('error');
+            isValid = false;
+        }
+
+        // Nếu tất cả hợp lệ, thông báo thành công
+        if (isValid) {
+            alert('Registration successful!');
+            closeRegisterForm();
+        }
+    });
+
+    // Hàm kiểm tra username
+    function validateUsername(username) {
+        const regex = /^[a-zA-Z0-9]{5,}$/; // Username ít nhất 5 ký tự và chỉ chứa chữ cái và số
+        if (!regex.test(username)) {
+            return false;
+        }
+
+        // Kiểm tra nếu username chỉ chứa số
+        if (/^\d+$/.test(username)) {
+            return false; // Nếu username chỉ chứa số, trả về false
+        }
+
+        return true; // Nếu username hợp lệ, trả về true
+    }
+
+    // Hàm kiểm tra email
+    function validateEmail(email) {
+        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Kiểm tra email hợp lệ
+        return regex.test(email);
+    }
+
+    // Hàm kiểm tra mật khẩu
+    function validatePassword(password) {
+        const regex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-zA-Z]).{8,}$/; // Mật khẩu ít nhất 8 ký tự, có số và ký tự đặc biệt
+        return regex.test(password);
+    }
+
+    // Hàm reset các thông báo lỗi và xóa lỗi trên các trường nhập liệu
+    function resetErrors() {
+        document.getElementById('username-error').style.display = 'none';
+        document.getElementById('email-error').style.display = 'none';
+        document.getElementById('password-error').style.display = 'none';
+        document.getElementById('confirm-password-error').style.display = 'none';
+
+        document.getElementById('register-username').classList.remove('error');
+        document.getElementById('register-email').classList.remove('error');
+        document.getElementById('register-password').classList.remove('error');
+        document.getElementById('confirm-password').classList.remove('error');
+    }
+
+
+    // Kiểm tra đăng nhập
+    document.getElementById('login-form-action').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        // Giả lập kiểm tra thông tin đăng nhập
+        if (username && password) {
+            alert('Login successful!');
+            closeLoginForm();
+        } else {
+            alert('Please enter valid login details.');
+        }
+    });
 </script>
 
 <body>
-    <!-- Login Form -->
+
     <!-- Login Form -->
     <div id="login-form" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:2rem; border-radius:1rem; box-shadow:0 4px 10px rgba(0,0,0,.1); z-index:1000; width: 350px;">
         <h2 style="text-align: center; color: var(--pink);">Login</h2>
-        <form action="#">
-            <input type="text" placeholder="Username" class="login-input">
-            <input type="password" placeholder="Password" class="login-input">
+        <form id="login-form-action" action="#">
+            <input type="text" id="login-username" placeholder="Username" class="login-input" required>
+            <input type="password" id="login-password" placeholder="Password" class="login-input" required>
             <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Login</button>
             <p style="text-align: center; margin-top: 1rem;">Don't have an account? <a href="#" onclick="openRegisterForm()" style="color: var(--pink);">Register</a></p>
             <button type="button" class="btn" style="width: 100%; background: #999; margin-top: 1rem;" onclick="closeLoginForm()">Close</button>
         </form>
     </div>
+
     <!-- Register Form -->
     <div id="register-form" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:2rem; border-radius:1rem; box-shadow:0 4px 10px rgba(0,0,0,.1); z-index:1000; width: 350px;">
         <h2 style="text-align: center; color: var(--pink);">Register</h2>
-        <form action="#">
-            <input type="text" placeholder="Username" class="login-input">
-            <input type="email" placeholder="Email" class="login-input">
-            <input type="password" placeholder="Password" class="login-input">
-            <input type="password" placeholder="Confirm Password" class="login-input">
+        <form id="register-form-action" action="#">
+            <!-- Username -->
+            <input type="text" id="register-username" placeholder="Username" class="login-input" required>
+            <p id="username-error" class="error-message" style="display: none;">Username must be at least 5 characters long and contain only letters and numbers.</p>
+
+            <!-- Email -->
+            <input type="email" id="register-email" placeholder="Email" class="login-input" required>
+            <p id="email-error" class="error-message" style="display: none;">Please enter a valid email address.</p>
+
+            <!-- Password -->
+            <input type="password" id="register-password" placeholder="Password" class="login-input" required>
+            <p id="password-error" class="error-message" style="display: none;">Password must be at least 8 characters long and contain at least one number and one special character.</p>
+
+            <!-- Confirm Password -->
+            <input type="password" id="confirm-password" placeholder="Confirm Password" class="login-input" required>
+            <p id="confirm-password-error" class="error-message" style="display: none;">Passwords do not match. Please try again.</p>
+
+            <!-- Register Button -->
             <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Register</button>
+
+            <!-- Link to Login -->
             <p style="text-align: center; margin-top: 1rem;">Already have an account? <a href="#" onclick="openLoginForm()" style="color: var(--pink);">Login</a></p>
+
+            <!-- Close Button -->
             <button type="button" class="btn" style="width: 100%; background: #999; margin-top: 1rem;" onclick="closeRegisterForm()">Close</button>
         </form>
     </div>
+
+
+
 
     <!-- Cart -->
     <div id="cart" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:2rem; border-radius:1rem; box-shadow:0 4px 10px rgba(0,0,0,.1); z-index:1000; width: 80%; max-width: 700px;">
@@ -209,10 +355,49 @@
             <strong>Total:</strong> <span id="cart-total">0</span> VND
         </div>
         <div style="margin-top: 1rem; text-align: center;">
-            <button class="btn" style="background: var(--pink); color: #fff;" onclick="checkout()">Checkout</button>
+            <button class="btn" style="background: var(--pink); color: #fff;" onclick="openCheckout()">Checkout</button>
             <button class="btn" style="background: #999; color: #fff;" onclick="closeCart()">Close</button>
         </div>
     </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:2rem; border-radius:1rem; box-shadow:0 4px 10px rgba(0,0,0,.1); z-index:1000; width: 80%; max-width: 500px;">
+        <h2 style="text-align: center; color: var(--pink); margin-bottom: 1rem;">Checkout</h2>
+        <form id="checkout-form">
+            <!-- Thông tin người mua -->
+            <div style="margin-bottom: 1rem;">
+                <label for="buyer-name" style="font-weight: bold;">Name:</label>
+                <input type="text" id="buyer-name" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;" placeholder="Your Name" required>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label for="buyer-email" style="font-weight: bold;">Email:</label>
+                <input type="email" id="buyer-email" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;" placeholder="Your Email" required>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label for="buyer-address" style="font-weight: bold;">Address:</label>
+                <input type="text" id="buyer-address" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;" placeholder="Your Address" required>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label for="payment-method" style="font-weight: bold;">Payment Method:</label>
+                <select id="payment-method" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;" required>
+                <option value="credit-card">Credit Card</option>
+                <option value="paypal">PayPal</option>
+                <option value="cod">Cash on Delivery</option>
+            </select>
+            </div>
+
+            <!-- Hiển thị tổng số tiền -->
+            <div style="margin-top: 1rem;">
+                <strong>Total Amount:</strong> <span id="checkout-total">0</span> VND
+            </div>
+
+            <div style="margin-top: 1rem; text-align: center;">
+                <button class="btn" style="background: var(--pink); color: #fff;" type="button" onclick="confirmCheckout()">Confirm Payment</button>
+                <button class="btn" style="background: #999; color: #fff;" type="button" onclick="closeCheckout()">Cancel</button>
+            </div>
+        </form>
+    </div>
+
 
 
 
